@@ -22,7 +22,7 @@
 
 
     # Auth type
-    # Can be cas, ldap
+    # Can be cas, saml, ldap, simple
     $authentication_type = 'cas';
 
 
@@ -32,7 +32,10 @@
     # Follow CAS SSO
     $cas_sso = true;
 
-    # CAS CA Cert (for SSO)
+    # SAML url
+    $saml_url = 'saml.bnl.gov';
+
+    # CA Cert (for SSO)
     $cacert = '/etc/certs/ca-bundle.crt';
 
 

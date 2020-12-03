@@ -255,6 +255,7 @@ class Authentication
         // Value is class name in SynchWeb\Authentication\Type namespace.
         // Key is lower case representation of class name.
         $authentication_types = array(
+            'saml' => 'SAML',
             'cas' => 'CAS',
             'dummy' => 'Dummy',
             'ldap' => 'LDAP',
