@@ -2,57 +2,39 @@
 
 namespace SynchWeb\Authentication\Type;
 
-use phpCAS;
+use simplesamlphp;
 use SynchWeb\Authentication\AuthenticationInterface;
 use SynchWeb\Authentication\AuthenticationParent;
 
-class CAS extends AuthenticationParent implements AuthenticationInterface
+require_once('../../simplesamlphp/lib/_autoload.php');
+
+class SAML extends AuthenticationParent implements AuthenticationInterface
 {
     function check()
     {
-        global $cas_url, $cas_sso, $cacert;
+        global $sam_url, $saml_sso, $saml_cacert;
 
-        if (!$cas_sso) return false;
+        if (!$saml_sso) return false;
 
-        phpCAS::client(CAS_VERSION_2_0, $cas_url, 443, '/cas');
-        phpCAS::setCasServerCACert($cacert);
+        $as = new \SimpleSaML\Auth\Simple('default-sp');
+        $as->requireAuth();
+        $attributes = $as->getAttributes();
+        print_r($attributes); 
 
-        try {
-            // CAS will try and redirect us
-            $check = phpCAS::checkAuthentication();
-
-            // phpCAS will now lumber us with a session, which we dont want
-            $params = session_get_cookie_params();
-            setcookie(session_name(), '', 0, $params['path'], $params['domain'], $params['secure'], isset($params['httponly']));
-            session_unset();
-            session_destroy();
-
-            if ($check) return phpCAS::getUser();
-
-            // Dont crash the app
-        } catch (\Exception $e) {
-
-        }
+        $session = \SimpleSAML\Session::getSessionFromRequest();
+        $session->cleanup();
     }
 
     function authenticate($login, $password)
     {
-        global $cas_url, $cacert;
+        global $saml_url, $saml_cacert;
 
         $fields = array(
             'username' => $login,
             'password' => $password,
         );
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'https://' . $cas_url . '/cas/v1/tickets');
-        curl_setopt($ch, CURLOPT_HEADER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_CAINFO, $cacert);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($fields));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $this->response = curl_exec($ch);
-        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        #ignore what has been put in already - go to IdP page
         curl_close($ch);
 
         $this->tgt = null;
@@ -63,21 +45,22 @@ class CAS extends AuthenticationParent implements AuthenticationInterface
         }
 
         // CAS returns 201 = Created
-        return $code == 201;
+        #return $code == 201;
+        return;
     }
 
     function service($service)
     {
-        global $cas_url, $cacert;
+        global $saml_url, $saml_cacert;
 
         $fields = array(
             'service' => $service,
         );
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'https://' . $cas_url . '/cas/v1/tickets/' . $this->tgt);
+        curl_setopt($ch, CURLOPT_URL, 'https://' . $saml_url . '' . $this->tgt);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_CAINFO, $cacert);
+        curl_setopt($ch, CURLOPT_CAINFO, $saml_cacert);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($fields));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $resp = curl_exec($ch);
@@ -89,7 +72,7 @@ class CAS extends AuthenticationParent implements AuthenticationInterface
 
     function validate($service, $ticket)
     {
-        global $cas_url, $cacert;
+        global $sam_url, $saml_cacert;
 
         $fields = array(
             'service' => $service,
@@ -98,9 +81,9 @@ class CAS extends AuthenticationParent implements AuthenticationInterface
         );
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'https://' . $cas_url . '/cas/v1/serviceValidate');
+        curl_setopt($ch, CURLOPT_URL, 'https://' . $saml_url . '');
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_CAINFO, $cacert);
+        curl_setopt($ch, CURLOPT_CAINFO, $saml_cacert);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($fields));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $resp = curl_exec($ch);

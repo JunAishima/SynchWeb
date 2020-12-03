@@ -32,8 +32,10 @@
     # Follow CAS SSO
     $cas_sso = true;
 
-    # SAML url
-    $saml_url = 'saml.bnl.gov';
+    # SAML authentication source name
+    $saml_as = 'default-sp';
+    # Follow SAM SSO
+    $saml_sso = true;
 
     # CA Cert (for SSO)
     $cacert = '/etc/certs/ca-bundle.crt';
