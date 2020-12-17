@@ -6,12 +6,21 @@ properties:
     enum:
       - cas
       - ldap
+      - saml
     example: cas
   cas_url:
     type: string
     description: CAS server url (if using CAS)
     example: my.cas-server.ac.uk
   cas_sso:
+    type: boolean
+    description: If true will try to follow single sign on
+    example: true
+  saml_url:
+    type: string
+    description: SAML login URL (if using SAML)
+    example: https://localhost/modules.php/core/auth?
+  saml_sso:
     type: boolean
     description: If true will try to follow single sign on
     example: true
