@@ -39,10 +39,11 @@ define(['views/form',
         checkExistingSession: function() {
             app.alert({ message: 'Checking for an existing session' })
             this.$el.find('form').addClass('loading')
-
             var self = this
             var fr = $('iframe')
             fr.load(function() {
+                self.redirect()
+                return
                 var content = fr.contents().text()
                 if (content) {
                     try {
@@ -60,6 +61,10 @@ define(['views/form',
                             self.redirect()
 
                         }
+
+			else {
+			    return response
+			}
                     } catch(err) {
                         // Not valid JSON
                         console.log('catching error')
@@ -72,6 +77,7 @@ define(['views/form',
         },
 
         redirect: function() {
+            window.location.href='http://ispyb-app-dev2.sdcc.bnl.local:8080/module.php/core/as_login.php?AuthId=default-sp&ReturnTo='+encodeURIComponent(window.location.href)
             if (app.options.get('authentication_type') == 'cas' && app.options.get('cas_sso') == true && location.href.indexOf('?ticket=') == -1)
                 window.location.href='https://'+app.options.get('cas_url')+'/cas/login?service='+encodeURIComponent(window.location.href)            
         },
