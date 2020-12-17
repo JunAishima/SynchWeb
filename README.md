@@ -52,7 +52,7 @@ $ npm run build
 An example configuration is provided in api/config_sample.php
 Main items to change include:
 - database connection parameters (user, password, host, port)
-- authentication type (cas, ldap, dummy/no authentication)
+- authentication type (cas, ldap, saml, dummy/no authentication)
 
 ### Build backend end
 ```sh
