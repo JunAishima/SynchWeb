@@ -17,17 +17,15 @@ class SAML extends AuthenticationParent implements AuthenticationInterface
         if (!$saml_sso) return false;
 
         $as = new \SimpleSAML\Auth\Simple('default-sp');
-        $attributes = $as->getAttributes();
 
-        $params = session_get_cookie_params();
-        setcookie(session_name(), '', 0, $params['path'], $params['domain'], $params['secure'], isset($params['httponly']));
-        session_unset();
-        session_destroy();
+        #$params = session_get_cookie_params();
+        #setcookie(session_name(), '', 0, $params['path'], $params['domain'], $params['secure'], isset($params['httponly']));
+        #session_unset();
+        #session_destroy();
 
-        
         if ($as->isAuthenticated()) {
-          error_log($attributes);
-          return substr($attributes['eduPersonPrincipalName'], 0,-9);
+          $attributes = $as->getAttributes();
+          return substr($attributes['eduPersonPrincipalName'][0], 0,-8);
         }
 
     }
