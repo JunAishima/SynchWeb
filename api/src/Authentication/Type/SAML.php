@@ -18,15 +18,27 @@ class SAML extends AuthenticationParent implements AuthenticationInterface
 
         $as = new \SimpleSAML\Auth\Simple('default-sp');
         $attributes = $as->getAttributes();
-        print_r($attributes);
+
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', 0, $params['path'], $params['domain'], $params['secure'], isset($params['httponly']));
+        session_unset();
+        session_destroy();
+
         
-        return $as->isAuthenticated();
+        if ($as->isAuthenticated()) {
+          error_log($attributes);
+          return substr($attributes['eduPersonPrincipalName'], 0,-9);
+        }
 
     }
 
     function authenticate($login, $password) {
-	$url = $as.getLoginUrl();
-        print('<a href="'. htmlspecialchars($url) . '">Login</a>');
+        if (!$this->check()) {
+            $url = $as.getLoginUrl();
+            echo "do something useful here";
+            #print('<a href=>"'. htmlspecialchars($url) . '">Login</a>');
+            return;
+	}
     }
     function service($service)
     {
