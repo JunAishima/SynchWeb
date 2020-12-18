@@ -42,42 +42,51 @@ define(['views/form',
             var self = this
             var fr = $('iframe')
             fr.load(function() {
-                self.redirect()
-                return
-                var content = fr.contents().text()
-                if (content) {
-                    try {
-                        var response = JSON.parse(content)
-                        if ('jwt' in response) {
-                            app.alert({ message: 'Found a valid session, auto-logging you in' })
-                            self.$el.find('form').addClass('loading')
-                            setTimeout(function() {
-                                self.setToken(response)
-                            }, 2000)
-                        }
+                if (app.options.get('authentication_type') == 'cas' && app.options.get('cas_sso') == true) {
+			self.redirect()
+			return
+			var content = fr.contents().text()
+			if (content) {
+			    try {
+				var response = JSON.parse(content)
+				if ('jwt' in response) {
+				    app.alert({ message: 'Found a valid session, auto-logging you in' })
+				    self.$el.find('form').addClass('loading')
+				    setTimeout(function() {
+					self.setToken(response)
+				    }, 2000)
+				}
 
-                        if ('error' in response) {
-                            self.$el.find('form').removeClass('loading')
-                            self.redirect()
+				if ('error' in response) {
+				    self.$el.find('form').removeClass('loading')
+				    self.redirect()
 
-                        }
+				}
 
-			else {
-			    return response
+				else {
+				    return response
+				}
+			    } catch(err) {
+				// Not valid JSON
+				console.log('catching error')
+				self.redirect()
+				self.$el.find('form').removeClass('loading')
+			    }
 			}
-                    } catch(err) {
-                        // Not valid JSON
-                        console.log('catching error')
-                        self.redirect()
-                        self.$el.find('form').removeClass('loading')
-                    }
                 }
+                if (app.options.get('authentication_type') == 'saml' && app.options.get('saml_sso') == true) {
+                    self.redirect();
+                    self.$el.find('form').removeClass('loading');
+                }
+
             })
             fr.attr('src',app.apiurl+'/authenticate/check')
         },
 
         redirect: function() {
-            window.location.href='http://ispyb-app-dev2.sdcc.bnl.local:8080/module.php/core/as_login.php?AuthId=default-sp&ReturnTo='+encodeURIComponent(window.location.href)
+            if (app.options.get('authentication_type') == 'saml' && app.options.get('saml_sso') == true)
+                //window.location.href='http://'+app.options.get('saml_url')+'/module.php/core/as_login.php?AuthId=default-sp&ReturnTo='+encodeURIComponent(window.location.href)
+                window.location.href='http://ispyb-app-dev2.sdcc.bnl.local:8080/module.php/core/as_login.php?AuthId=default-sp&ReturnTo='+encodeURIComponent(window.location.href)
             if (app.options.get('authentication_type') == 'cas' && app.options.get('cas_sso') == true && location.href.indexOf('?ticket=') == -1)
                 window.location.href='https://'+app.options.get('cas_url')+'/cas/login?service='+encodeURIComponent(window.location.href)            
         },
