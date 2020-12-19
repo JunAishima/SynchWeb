@@ -42,9 +42,8 @@ define(['views/form',
             var self = this
             var fr = $('iframe')
             fr.load(function() {
-                if (app.options.get('authentication_type') == 'cas' && app.options.get('cas_sso') == true) {
-			self.redirect()
-			return
+                if ((app.options.get('authentication_type') == 'cas' && app.options.get('cas_sso') == true) ||
+                   (app.options.get('authentication_type') == 'saml' && app.options.get('saml_sso') == true)) {
 			var content = fr.contents().text()
 			if (content) {
 			    try {
@@ -73,11 +72,7 @@ define(['views/form',
 				self.$el.find('form').removeClass('loading')
 			    }
 			}
-                }
-                if (app.options.get('authentication_type') == 'saml' && app.options.get('saml_sso') == true) {
-                    self.redirect();
-                    self.$el.find('form').removeClass('loading');
-                }
+		}
 
             })
             fr.attr('src',app.apiurl+'/authenticate/check')
