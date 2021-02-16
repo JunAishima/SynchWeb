@@ -80,8 +80,7 @@ define(['views/form',
 
         redirect: function() {
             if (app.options.get('authentication_type') == 'saml' && app.options.get('saml_sso') == true)
-                //window.location.href='http://'+app.options.get('saml_url')+'/module.php/core/as_login.php?AuthId=default-sp&ReturnTo='+encodeURIComponent(window.location.href)
-                window.location.href='http://ispyb-app-dev2.sdcc.bnl.local:8080/module.php/core/as_login.php?AuthId=default-sp&ReturnTo='+encodeURIComponent(window.location.href)
+                window.location.href=app.options.get('saml_url')+'/module.php/core/as_login.php?AuthId=default-sp&ReturnTo='+encodeURIComponent(window.location.href)
             if (app.options.get('authentication_type') == 'cas' && app.options.get('cas_sso') == true && location.href.indexOf('?ticket=') == -1)
                 window.location.href='https://'+app.options.get('cas_url')+'/cas/login?service='+encodeURIComponent(window.location.href)            
         },
