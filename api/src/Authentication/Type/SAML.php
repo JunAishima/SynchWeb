@@ -18,10 +18,10 @@ class SAML extends AuthenticationParent implements AuthenticationInterface
 
         $as = new \SimpleSAML\Auth\Simple('default-sp');
 
-        #$params = session_get_cookie_params();
-        #setcookie(session_name(), '', 0, $params['path'], $params['domain'], $params['secure'], isset($params['httponly']));
-        #session_unset();
-        #session_destroy();
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', 0, $params['path'], $params['domain'], $params['secure'], isset($params['httponly']));
+        session_unset();
+        session_destroy();
 
         if ($as->isAuthenticated()) {
           $attributes = $as->getAttributes();
